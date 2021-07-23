@@ -39,9 +39,9 @@ def open_dataframe_and_addcolumns(path_file_tweets_preprocessed):
 url_api = 'https://api.gotit.ai/NLU/v1.5/Analyze'
 
 # Buscar no site a API_kEY
-key_identifier = "2147-8fs6d1E/" 
+key_identifier = "xxxxxx" 
 # Buscar no site a API_kEY
-key_secret = "DXKm42YCBxReVKU7UDW7TAt2FpEvu/cx" 
+key_secret = "yyyyyyy" 
 
 # Arquivos de leitura e saida
 path_file_tweets_preprocessed = "./preprocessed_tweets.csv"
