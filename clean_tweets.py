@@ -6,16 +6,17 @@ class Cleaner(object):
 
     def execute(self, files, path_file_destino):
         
-        # uso apenas pra setar que o param header é verdadeiro ao exportar do CSV no final na primeira execucao
+        # uso apenas pra setar que o parametro header é verdadeiro ao exportar do CSV no final na primeira execucao
         first_execution = False
 
         for pathfile in files:
 
             # ler arquivo .CSV
-            data = pd.read_csv(pathfile)
+            df = pd.read_csv(pathfile)
 
-            # converte para um Dataframe Python o arquivo .CSV e seleciona somente as colunas indicadas abaixo
-            df = pd.DataFrame(data, columns= ['date','time','country_code','user_location','text'])
+            # remove colunas sem utilidade
+            df.drop(columns=['tweet_id', 'lang'], axis=1, inplace=True)
+            df.drop(df.columns[[0]], axis=1, inplace=True)
 
             # troca nome da coluna 'date' por 'tweet_date' e 'country_code' por 'city'
             df.rename(columns={"date":"tweet_date"}, inplace=True)

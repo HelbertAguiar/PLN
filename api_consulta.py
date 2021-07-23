@@ -1,4 +1,5 @@
-import json, requests, pprint, base64
+import json, requests, base64, datetime
+import pandas as pd
 
 # Documentacao API Postman
 # https://documenter.getpostman.com/view/4456678/RWaHyVMX
@@ -22,16 +23,53 @@ class api_pln(object):
         userAndPass = base64.b64encode(pwd).decode("ascii")
         headers = {'Content-type': 'application/json', "Authorization": "Basic %s" %  userAndPass}
         return requests.post(self.url_api, data=data_json, headers=headers)
+        
+
+def open_dataframe_and_addcolumns(path_file_tweets_preprocessed):
+    df = pd.read_csv(path_file_tweets_preprocessed)
+    df['Sentimento_Score'] = "Null"
+    df['Sentimento_Label'] = "Null"
+    df['Tristeza'] = "Null"
+    df['Alegria'] = "Null"
+    df['Medo'] = "Null"
+    df['Desgosto'] = "Null"
+    df['Raiva'] = "Null"
+    return df
 
 url_api = 'https://api.gotit.ai/NLU/v1.5/Analyze'
-key_identifier = "XXXXX" # Buscar no site a API_kEY
-key_secret = "YYYYY" # Buscar no site a API_kEY
 
+# Buscar no site a API_kEY
+key_identifier = "2147-8fs6d1E/" 
+# Buscar no site a API_kEY
+key_secret = "DXKm42YCBxReVKU7UDW7TAt2FpEvu/cx" 
+
+# Arquivos de leitura e saida
+path_file_tweets_preprocessed = "./preprocessed_tweets.csv"
+path_file_tweets_PLN = "./preprocessed_tweets_PLN.csv" 
+
+# Adiciona colunas da PLN ao dataset
+df = open_dataframe_and_addcolumns(path_file_tweets_preprocessed) 
 api = api_pln(url_api, key_identifier, key_secret)
 
-msg = "Victor comeu uma pizza horrivel."
-# msg = "meu deus não acredito"
+# executando analise
+print("Inicio: " + str(datetime.datetime.now()))
+cont = 0
 
-response = api.consulta(msg)
-pprint.pprint(response.json())
+# percorre linhas do dataframe e consulta API na mensagem 
+for i in range(len(df)) :
+    msg = df.loc[i, "text"]
+    response = (api.consulta(msg)).json()
+    df.loc[i, "Sentimento_Score"] = response['sentiment']['score']
+    df.loc[i, "Sentimento_Label"] = response['sentiment']['label']
+    df.loc[i, "Tristeza"] = response['emotions']['sadness']
+    df.loc[i, "Alegria"] = response['emotions']['joy']
+    df.loc[i, "Medo"] = response['emotions']['fear']
+    df.loc[i, "Desgosto"] = response['emotions']['disgust']
+    df.loc[i, "Raiva"] = response['emotions']['anger']
+    cont = cont + 1
+    print("Processado msg nr {}: ".format(cont) + str(datetime.datetime.now()))
 
+print("Fim:    " + str(datetime.datetime.now()))
+
+# salva o arquivo com as colunas da analise
+df.to_csv(path_file_tweets_PLN, index=False, header=True, encoding='utf-8', mode='a')
