@@ -1,3 +1,7 @@
+venv
+.csv
+data/*.csv
+
 # Build and Release Folders
 bin-debug/
 bin-release/
